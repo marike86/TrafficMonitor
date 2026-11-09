@@ -1,0 +1,33 @@
+name: Build Check
+on:
+  push:
+    branches:
+      - 'ci/build-check'
+      - 'feature/multimonitor-taskbar-host'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_x64:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build full solution (Release|x64)
+      run: msbuild TrafficMonitor.sln -p:configuration=Release -p:platform=x64 -p:platformToolset=v143
+
+    - name: Build lite solution (Release (lite)|x64)
+      run: msbuild TrafficMonitor_Lite.sln -p:configuration="Release (lite)" -p:platform=x64 -p:platformToolset=v143
+
+    - name: Upload exe
+      uses: actions/upload-artifact@v4
+      with:
+        name: TrafficMonitor-x64
+        path: |
+          Bin/x64/Release/TrafficMonitor.exe
+          Bin/x64/Release/*.dll
