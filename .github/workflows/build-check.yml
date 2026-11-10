@@ -11,12 +11,16 @@ on:
 
 jobs:
   build_x64:
-    runs-on: windows-latest
+    # windows-latest 当前镜像为 VS18/v170，未安装 MFC 组件（MSB8041: MFC libraries are required），
+    # 故固定使用自带 MFC 的 windows-2022 镜像并显式指定 VS2022。
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
 
-    - name: Add msbuild to PATH
+    - name: Add msbuild (VS2022) to PATH
       uses: microsoft/setup-msbuild@v2
+      with:
+        vsversion: '2022'
 
     - name: Build full solution (Release|x64)
       run: msbuild TrafficMonitor.sln -p:configuration=Release -p:platform=x64 -p:platformToolset=v143
